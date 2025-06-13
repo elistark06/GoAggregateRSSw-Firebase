@@ -7,12 +7,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-// responsible for database interactions
-type ArticleRepository struct {
-	Db *sql.DB
-}
-
-// simple struct for request methods
+// simple struct for making requests and updating the database
 type ArticleRequests struct {
 	Db *sql.DB
 }
@@ -27,7 +22,7 @@ type Article struct {
 	ReceivedDate  string `json:"received_date"`
 }
 
-func (r *ArticleRepository) CreateTable() error {
+func (r *ArticleRequests) CreateTable() error {
 	_, err := r.Db.Exec(`CREATE TABLE IF NOT EXISTS articles (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		title STRING,

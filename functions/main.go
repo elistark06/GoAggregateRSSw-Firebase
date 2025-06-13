@@ -46,7 +46,7 @@ func main() {
 
 		defer databaseConnection.Close()
 
-		articleRepository := &database.ArticleRepository{Db: databaseConnection}
+		articleRepository := &database.ArticleRequests{Db: databaseConnection}
 
 
 			err = articleRepository.CreateTable()
