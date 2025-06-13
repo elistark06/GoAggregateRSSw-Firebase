@@ -13,7 +13,16 @@ import (
 
 func main() {
 
-	ars := &ArticleRequests.ArticleRequests{}
+	db, err := sql.Open("sqlite3", "./articles.db")
+	if err != nil {
+		fmt.Println("Error opening database:", err)
+		return
+	}
+	defer db.Close()
+	// Initialize the ArticleRequests struct with the database connection
+	ars := &ArticleRequests.ArticleRequests{
+		Db: db,
+	}
 
 	articles, err := ars.FetchRSSFeed()
 	if err != nil {
@@ -27,8 +36,6 @@ func main() {
 	} else {
 		fmt.Println("Articles fetched successfully:", len(articles))
 	}
-
-	databaseConnection, err := sql.Open("sqlite3", "./articles.db")
 
 	// Deprecated code for creating the table
 	// Uncomment the following lines if you want to create the table in the database
