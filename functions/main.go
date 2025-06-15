@@ -11,7 +11,7 @@ import (
 	_ "github.com/mmcdole/gofeed"   // Import the gofeed package for RSS parsing
 )
 
-func main() {
+func mainGetArticles() {
 
 	db, err := sql.Open("sqlite3", "./articles.db")
 	if err != nil {
