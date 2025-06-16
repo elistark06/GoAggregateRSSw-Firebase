@@ -4,26 +4,43 @@ package main
 
 import (
 	ArticleRequests "GoAggregateRSS/databaseFolder"
+	serverFolder "GoAggregateRSS/serverFolder"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3" // Import the SQLite driver
 	_ "github.com/mmcdole/gofeed"   // Import the gofeed package for RSS parsing
 )
 
-func mainGetArticles() {
+func main() {
 
+	s := &serverFolder.Server{
+		Addr:              ":8080",
+		Handler:           http.DefaultServeMux,
+		ReadTimeout:       10000 * time.Second, // No timeout
+		WriteTimeout:      10000 * time.Second, // No timeout
+		IdleTimeout:       10000 * time.Second, // No timeout
+		ReadHeaderTimeout: 10000 * time.Second, // No timeout
+	}
+	// Start the server
+	go serverFolder.Start(s)
+
+	// Connect to the SQLite database
 	db, err := sql.Open("sqlite3", "./articles.db")
 	if err != nil {
 		fmt.Println("Error opening database:", err)
 		return
 	}
 	defer db.Close()
+
 	// Initialize the ArticleRequests struct with the database connection
 	ars := &ArticleRequests.ArticleRequests{
 		Db: db,
 	}
 
+	// Fetch the RSS feed and parse the articles
 	articles, err := ars.FetchRSSFeed()
 	if err != nil {
 		fmt.Println("Error fetching RSS feed:", err)

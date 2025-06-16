@@ -129,3 +129,23 @@ func (r *ArticleRequests) InsertArticle(article Article) error {
 
 	return nil
 }
+
+func (r *ArticleRequests) GetArticles() ([]Article, error) {
+	rows, err := r.Db.Query("SELECT id, title, link, content, publisheddate, receiveddate FROM articles")
+	if err != nil {
+		return nil, fmt.Errorf("error querying articles: %v", err)
+	}
+	defer rows.Close()
+	var articles []Article
+	for rows.Next() {
+		var article Article
+		if err := rows.Scan(&article.ID, &article.Title, &article.Link, &article.Content, &article.PublishedDate, &article.ReceivedDate); err != nil {
+			return nil, fmt.Errorf("error scanning article: %v", err)
+		}
+		articles = append(articles, article)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over articles: %v", err)
+	}
+	return articles, err
+}
