@@ -1,0 +1,589 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RSS Aggregator API",
+    "description": "A RESTful API for aggregating and managing RSS feed articles. Features clean resource-based endpoints with comprehensive query parameter filtering.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Eli Stark"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Welcome message",
+        "description": "Returns a welcome message for the RSS Aggregator API",
+        "responses": {
+          "200": {
+            "description": "Welcome message",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WelcomeMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/articles": {
+      "get": {
+        "summary": "Get articles with comprehensive filtering",
+        "description": "Retrieves articles from the RSS aggregator with support for pagination, filtering, searching, and sorting. This single endpoint handles all article retrieval scenarios through query parameters.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (default: 1)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/PageParameter"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of articles per page (default: 10, max: 100)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LimitParameter"
+            }
+          },
+          {
+            "name": "filterBy",
+            "in": "query",
+            "description": "Field to filter by (source, title, content, publishedDate)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/FilterByParameter"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "Keyword to search for in the specified filterBy field (case-insensitive)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/KeywordParameter"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order for results (default: desc by publishedDate)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OrderParameter"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by (default: publishedDate)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortByParameter"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "description": "Filter articles published after this date (Unix timestamp in milliseconds)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TimestampParameter"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "description": "Filter articles published before this date (Unix timestamp in milliseconds)",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TimestampParameter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Articles retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticlesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No articles found matching criteria",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete specific article",
+        "description": "Removes a specific article from the collection by its ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Unique identifier of the article to delete",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ArticleIdParameter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article deleted successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid article ID",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources": {
+      "get": {
+        "summary": "Get all RSS feed sources",
+        "description": "Retrieves all configured RSS feed sources from MyBlogs collection",
+        "responses": {
+          "200": {
+            "description": "RSS feed sources retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcesResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new RSS feed source",
+        "description": "Adds a single new RSS feed source to the MyBlogs collection",
+        "parameters": [
+          {
+            "name": "link",
+            "in": "query",
+            "description": "RSS feed URL to add",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UrlParameter"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "RSS feed source added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing link parameter",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Source already exists",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Replace all RSS feed sources",
+        "description": "Replaces the entire MyBlogs collection with a new array of RSS feed URLs",
+        "parameters": [
+          {
+            "name": "links",
+            "in": "query",
+            "description": "Comma-separated list of RSS feed URLs to replace entire collection",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/LinksParameter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RSS feed sources replaced successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing links parameter",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove RSS feed source",
+        "description": "Removes a specific RSS feed source from the MyBlogs collection",
+        "parameters": [
+          {
+            "name": "link",
+            "in": "query",
+            "description": "RSS feed URL to remove",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UrlParameter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "RSS feed source removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing link parameter",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Source not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the article",
+            "example": "-NkxYz123"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the article",
+            "example": "Latest Tech News: AI Breakthrough"
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL link to the original article",
+            "example": "https://example.com/article/123"
+          },
+          "content": {
+            "type": "string",
+            "description": "The content/description of the article",
+            "example": "A groundbreaking AI development has been announced..."
+          },
+          "publishedDate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The published date in Unix milliseconds",
+            "example": 1672531200000
+          },
+          "receivedDate": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The date the article was received/processed in Unix milliseconds",
+            "example": 1672531300000
+          },
+          "source": {
+            "type": "string",
+            "format": "uri",
+            "description": "The RSS feed URL from which this article was aggregated",
+            "example": "https://techcrunch.com/tag/saas/feed/"
+          }
+        },
+        "required": ["id", "title", "link", "content", "publishedDate", "receivedDate", "source"]
+      },
+      "ArticlesCollection": {
+        "type": "object",
+        "description": "A collection of RSS feed articles stored as a JSON object with article IDs as keys",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Article"
+        },
+        "example": {
+          "-NkxYz123": {
+            "id": "-NkxYz123",
+            "title": "Cloud Computing Trends 2025",
+            "link": "https://example.com/cloud-trends",
+            "content": "The latest trends in cloud computing...",
+            "publishedDate": 1672531200000,
+            "receivedDate": 1672531300000,
+            "source": "https://techcrunch.com/tag/saas/feed/"
+          },
+          "-NkxYz124": {
+            "id": "-NkxYz124",
+            "title": "JavaScript Frameworks Update",
+            "link": "https://example.com/js-frameworks",
+            "content": "New features in modern JavaScript frameworks...",
+            "publishedDate": 1672617600000,
+            "receivedDate": 1672617700000,
+            "source": "https://feeds.feedburner.com/WebDeveloperJuice"
+          }
+        }
+      },
+      "ArticlesResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ArticlesCollection"
+          }
+        ],
+        "description": "Response containing a collection of RSS feed articles"
+      },
+      "SourcesResponse": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "uri"
+        },
+        "description": "Array of RSS feed URLs from MyBlogs collection",
+        "example": [
+          "https://techcrunch.com/tag/saas/feed/",
+          "https://www.wired.com/feed/tag/ai/latest/rss",
+          "https://feeds.feedburner.com/WebDeveloperJuice"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "string",
+        "description": "Simple error message string",
+        "example": "No articles found matching the specified criteria"
+      },
+      "WelcomeMessage": {
+        "type": "string",
+        "description": "Welcome message for the RSS Aggregator API",
+        "example": "Welcome to the RSS Aggregator API! A RESTful service for managing RSS feed articles."
+      },
+      "SuccessMessage": {
+        "type": "string",
+        "description": "Success message for completed operations",
+        "example": "Operation completed successfully"
+      },
+      "PageParameter": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 1,
+        "description": "Page number for pagination",
+        "example": 1
+      },
+      "LimitParameter": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 10,
+        "description": "Number of items per page",
+        "example": 20
+      },
+      "FilterByParameter": {
+        "type": "string",
+        "enum": ["source", "title", "content", "publishedDate"],
+        "description": "Field to filter by",
+        "example": "source"
+      },
+      "KeywordParameter": {
+        "type": "string",
+        "description": "Keyword to search for in the specified filterBy field (case-insensitive)",
+        "example": "cloud computing"
+      },
+      "OrderParameter": {
+        "type": "string",
+        "enum": ["asc", "desc"],
+        "default": "desc",
+        "description": "Sort order for results",
+        "example": "desc"
+      },
+      "SortByParameter": {
+        "type": "string",
+        "enum": ["title", "publishedDate", "receivedDate"],
+        "default": "publishedDate",
+        "description": "Field to sort by",
+        "example": "publishedDate"
+      },
+      "TimestampParameter": {
+        "type": "integer",
+        "format": "int64",
+        "description": "Unix timestamp in milliseconds",
+        "example": 1672531200000
+      },
+      "ArticleIdParameter": {
+        "type": "string",
+        "description": "Unique identifier of the article",
+        "example": "-NkxYz123"
+      },
+      "UrlParameter": {
+        "type": "string",
+        "format": "uri",
+        "description": "RSS feed URL",
+        "example": "https://example.com/feed.xml"
+      },
+      "LinksParameter": {
+        "type": "string",
+        "description": "Comma-separated list of RSS feed URLs",
+        "example": "https://feed1.com/rss,https://feed2.com/rss,https://feed3.com/rss"
+      }
+    }
+  }
+}
